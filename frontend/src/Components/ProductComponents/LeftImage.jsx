@@ -2,7 +2,7 @@ const appstore = "/images/appstoreBadge.svg";
 const googleplay = "/images/googlePlayBadge.svg";
 const LeftImage = ({ image, title, description }) => {
   return (
-    <section className="py-20 px-4 bg-white">
+    <section className="py-10 px-4 bg-white">
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
         <div>
           <img src={image} alt="" />

@@ -6,15 +6,15 @@ const Navbar = () => {
 
   const navlink = (
     <>
-      <NavLink to="/">Sing Up</NavLink>
+      <NavLink to="/singup">Sing Up</NavLink>
       <NavLink to="/about">About</NavLink>
       <NavLink to="/product">Product</NavLink>
       <NavLink to="/pricing">Pricing</NavLink>
       <NavLink to="/support">Support</NavLink>
+      <NavLink to="/dashboard">Dashboard</NavLink>
       {user && (
         <>
-          <NavLink to="/sendparcel">Send a Parcel</NavLink>
-          <NavLink to="/dashboard/myparcel">Dashboard</NavLink>
+          <NavLink to="/dashboard">Send a Parcel</NavLink>
         </>
       )}
     </>

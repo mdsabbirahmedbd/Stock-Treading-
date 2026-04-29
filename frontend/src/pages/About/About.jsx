@@ -74,7 +74,7 @@ const About = () => {
           {/* Image */}
           <div className="flex flex-col items-center text-center">
             <img
-              src={founder} // 👉 এখানে তুমি নিজের image দিবা
+              src={founder} 
               alt="Founder"
               className="w-56 h-56 object-cover rounded-full mb-6"
             />
