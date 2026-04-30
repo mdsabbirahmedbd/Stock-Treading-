@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet } from "react-router-dom";
 import Watchlist from "../Components/DashboardComponents/WatchList/Watchlist";
 
 const Logo = "/images/logo.svg";
@@ -19,12 +19,13 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen">
-
       {/* ================= MOBILE ================= */}
       <div className="md:hidden flex flex-col h-screen">
         {/* 🔹 Top Navbar */}
         <div className="flex items-center justify-between p-4 bg-white shadow">
-          <img src={Logo} alt="Logo" className="h-6 w-32" />
+          <Link to="/">
+            <img src={Logo} alt="Logo" className="h-6 w-32" />
+          </Link>
           <button onClick={() => setIsMenuOpen(true)}>
             <Menu size={24} />
           </button>
@@ -63,7 +64,6 @@ const Dashboard = () => {
 
         {/* 🔹 Scrollable Area */}
         <div className="flex-1 overflow-y-auto">
-
           {/* Watchlist */}
           <div className="h-1/3 border-b bg-white overflow-y-auto">
             <Watchlist />
@@ -73,13 +73,11 @@ const Dashboard = () => {
           <div className="p-4 bg-gray-100">
             <Outlet />
           </div>
-
         </div>
       </div>
 
       {/* ================= DESKTOP ================= */}
       <div className="hidden md:flex">
-
         {/* LEFT */}
         <div className="w-1/3 border-r bg-white h-screen overflow-y-auto">
           <Watchlist />
@@ -87,12 +85,12 @@ const Dashboard = () => {
 
         {/* RIGHT */}
         <div className="w-2/3 bg-gray-100 h-screen overflow-y-auto">
-
           {/* Navbar */}
           <div className="bg-white border-b px-6 py-3 flex items-center justify-between">
-
             {/* Logo */}
-            <img src={Logo} alt="Logo" className="h-6 w-32" />
+            <Link to="/">
+              <img src={Logo} alt="Logo" className="h-6 w-32" />
+            </Link>
 
             {/* Menu */}
             <div className="flex gap-6">
@@ -137,17 +135,14 @@ const Dashboard = () => {
                 </li>
               </ul>
             </div>
-
           </div>
 
           {/* Content */}
           <div className="p-6">
             <Outlet />
           </div>
-
         </div>
       </div>
-
     </div>
   );
 };
