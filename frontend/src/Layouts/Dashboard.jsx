@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import Watchlist from "../Components/DashboardComponents/WatchList/Watchlist";
+import useAuth from "../Hooks/useAuth";
 
 const Logo = "/images/logo.svg";
 const founder = "/images/founder.png";
 
 const Dashboard = () => {
+  const {logout} = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const menu = [
@@ -77,19 +79,19 @@ const Dashboard = () => {
       </div>
 
       {/* ================= DESKTOP ================= */}
-      <div className="hidden md:flex">
+      <div className="hidden md:flex ">
         {/* LEFT */}
         <div className="w-1/3 border-r bg-white h-screen overflow-y-auto">
           <Watchlist />
         </div>
 
         {/* RIGHT */}
-        <div className="w-2/3 bg-gray-100 h-screen overflow-y-auto">
+        <div className="w-2/3 bg-gray-100 h-screen overflow-y-auto  ">
           {/* Navbar */}
           <div className="bg-white border-b px-6 py-3 flex items-center justify-between">
             {/* Logo */}
             <Link to="/">
-              <img src={Logo} alt="Logo" className="h-6 w-32" />
+            <img src={Logo} alt="Logo" className="h-6 w-32" />
             </Link>
 
             {/* Menu */}
@@ -131,7 +133,7 @@ const Dashboard = () => {
                   <a>Settings</a>
                 </li>
                 <li>
-                  <button className="text-red-500">Logout</button>
+                  <button onClick={logout} className="text-red-500">Logout</button>
                 </li>
               </ul>
             </div>

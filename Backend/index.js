@@ -2,132 +2,131 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 
 const app = express();
-
 const port = process.env.PORT || 3000;
 const uri = process.env.MONGO_URI;
 
-// middleware setup
-app.use(cors());
+app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 
+
+const VerifyToken = require("./middleware/middleware");
 const HoldingModel = require("./model/HoldingsModels");
+const PositionMoeld = require("./model/PositionModels");
+const OrderModel = require("./model/OrdersModels");
+const UserModel = require("./model/UsersModles");
 
-// app.get("/holdings", (req, res) => {
-//   const holdings = [
-//     {
-//       symbol: "BHARTIARTL",
-//       qty: 2,
-//       avg: 538.05,
-//       ltp: 541.15,
-//       curVal: 1082.3,
-//       pnl: 6.2,
-//       netChg: +0.58,
-//       dayChg: +2.99,
-//     },
-//     {
-//       symbol: "HDFCBANK",
-//       qty: 2,
-//       avg: 1383.4,
-//       ltp: 1522.35,
-//       curVal: 3044.7,
-//       pnl: 277.9,
-//       netChg: +10.04,
-//       dayChg: +0.11,
-//     },
-//     {
-//       symbol: "HINDUNILVR",
-//       qty: 1,
-//       avg: 2335.85,
-//       ltp: 2417.4,
-//       curVal: 2417.4,
-//       pnl: 81.55,
-//       netChg: +3.49,
-//       dayChg: +0.21,
-//     },
-//     {
-//       symbol: "INFY",
-//       qty: 1,
-//       avg: 1350.5,
-//       ltp: 1555.45,
-//       curVal: 1555.45,
-//       pnl: 204.95,
-//       netChg: +15.18,
-//       dayChg: -1.6,
-//     },
-//     {
-//       symbol: "ITC",
-//       qty: 5,
-//       avg: 202.0,
-//       ltp: 207.9,
-//       curVal: 1039.5,
-//       pnl: 29.5,
-//       netChg: +2.92,
-//       dayChg: +0.8,
-//     },
-//     {
-//       symbol: "KPITTECH",
-//       qty: 5,
-//       avg: 250.3,
-//       ltp: 266.45,
-//       curVal: 1332.25,
-//       pnl: 80.75,
-//       netChg: +6.45,
-//       dayChg: +3.54,
-//     },
-//     {
-//       symbol: "M&M",
-//       qty: 2,
-//       avg: 809.9,
-//       ltp: 779.8,
-//       curVal: 1559.6,
-//       pnl: -60.2,
-//       netChg: -3.72,
-//       dayChg: -0.01,
-//     },
-//     {
-//       symbol: "RELIANCE",
-//       qty: 1,
-//       avg: 2193.7,
-//       ltp: 2112.4,
-//       curVal: 2112.4,
-//       pnl: -81.3,
-//       netChg: -3.71,
-//       dayChg: +1.44,
-//     },
-//     {
-//       symbol: "SBIN",
-//       qty: 4,
-//       avg: 324.35,
-//       ltp: 430.2,
-//       curVal: 1720.8,
-//       pnl: 423.4,
-//       netChg: +32.7,
-//       dayChg: -0.34,
-//     },
-//   ];
 
-//   holdings.forEach((item) => {
-//     let newHolding = new HoldingModel({
-//       symbol: item.symbol,
-//       qty: item.qty,
-//       avg: item.avg,
-//       ltp: item.ltp,
-//       curVal: item.curVal,
-//       pnl: item.pnl,
-//       netChg: item.netChg,
-//       dayChg: item.dayChg,
-//     });
-//     newHolding.save();
-//   });
 
-//  res.send("Done")
+// authentication here 
+const generateToken = (user) => {
+  return jwt.sign(
+    { id: user._id, email: user.email, name: user.name },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+};
 
-// });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-  mongoose.connect(uri);
-  console.log("db connected");
+app.post('/register', async (req, res) => {
+   try {
+    const { name, email, password } = req.body;
+
+     if (!name || !email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+ 
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+ 
+    const user = await UserModel.create({ name, email, password });
+ 
+    const token = generateToken(user);
+    res.status(201).json({
+      message: "Registration successful",
+      token,
+      user: { id: user._id, name: user.name, email: user.email},
+    });
+   } catch (error) {
+
+      res.status(500).json({ message: "Server error", error: error.message });
+   }
+})
+
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const existingUser = await UserModel.findOne({ email });
+
+    if (!existingUser) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const isMatch = await existingUser.comparePassword(password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const token = generateToken(existingUser);
+
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      user: {
+        id: existingUser._id,
+        name: existingUser.name,
+        email: existingUser.email,
+      },
+    });
+
+  } catch (error) {
+
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 });
+
+
+
+
+
+
+
+
+
+
+
+// all api here 
+
+app.get("/AllHoldings",VerifyToken, async (req, res) => {
+  console.log(req.headers.authorization)
+  const holdings = await HoldingModel.find()
+  res.send(holdings)
+})
+app.get("/AllPositions",VerifyToken, async (req, res) => {
+  const position = await PositionMoeld.find()
+  res.send(position)
+})
+
+
+app.post("/orders",  async (req, res) => {
+  const body = req.body
+  const order = await OrderModel.create(body)
+  res.send(order)
+})
+
+mongoose.connect(uri).then(() => {
+  console.log("DB connected");
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+})

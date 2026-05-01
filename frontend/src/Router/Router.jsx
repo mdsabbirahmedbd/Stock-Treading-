@@ -1,5 +1,5 @@
 
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 import Root from "../Layouts/Root";
 import Home from "../pages/Home/Home";
 import About from "../pages/About/About";
@@ -14,6 +14,9 @@ import Holdings from "../Components/DashboardComponents/Holdings";
 import Positions from "../Components/DashboardComponents/Positions";
 import Funds from "../Components/DashboardComponents/Funds";
 import { DashbordHome } from "../Components/DashboardComponents/DashbordHome";
+import Login from "../pages/Login/Login";
+import PrivateRoute from "../Routes/PrivateRoute";
+
 
 
 export const router = createBrowserRouter([
@@ -42,6 +45,10 @@ export const router = createBrowserRouter([
                 Component : SingUp
                },
                {
+                 path:'/login',
+                 Component : Login
+               },
+               {
                 path:'/support',
                 Component : Support
                }
@@ -50,7 +57,7 @@ export const router = createBrowserRouter([
      },
      {
           path:"/dashboard",
-          Component : Dashboard,
+          element : <PrivateRoute><Dashboard /></PrivateRoute>,
           children : [
                {
                     index : true,

@@ -1,18 +1,32 @@
-const holdings = [
-  { symbol: "BHARTIARTL", qty: 2,  avg: 538.05,  ltp: 541.15,  curVal: 1082.30, pnl:   6.20, netChg: +0.58, dayChg: +2.99 },
-  { symbol: "HDFCBANK",   qty: 2,  avg: 1383.40, ltp: 1522.35, curVal: 3044.70, pnl: 277.90, netChg: +10.04, dayChg: +0.11 },
-  { symbol: "HINDUNILVR", qty: 1,  avg: 2335.85, ltp: 2417.40, curVal: 2417.40, pnl:  81.55, netChg: +3.49, dayChg: +0.21 },
-  { symbol: "INFY",       qty: 1,  avg: 1350.50, ltp: 1555.45, curVal: 1555.45, pnl: 204.95, netChg: +15.18, dayChg: -1.60 },
-  { symbol: "ITC",        qty: 5,  avg: 202.00,  ltp: 207.90,  curVal: 1039.50, pnl:  29.50, netChg: +2.92, dayChg: +0.80 },
-  { symbol: "KPITTECH",   qty: 5,  avg: 250.30,  ltp: 266.45,  curVal: 1332.25, pnl:  80.75, netChg: +6.45, dayChg: +3.54 },
-  { symbol: "M&M",        qty: 2,  avg: 809.90,  ltp: 779.80,  curVal: 1559.60, pnl: -60.20, netChg: -3.72, dayChg: -0.01 },
-  { symbol: "RELIANCE",   qty: 1,  avg: 2193.70, ltp: 2112.40, curVal: 2112.40, pnl: -81.30, netChg: -3.71, dayChg: +1.44 },
-  { symbol: "SBIN",       qty: 4,  avg: 324.35,  ltp: 430.20,  curVal: 1720.80, pnl: 423.40, netChg: +32.7, dayChg: -0.34 },
-]
+import { useEffect, useState } from "react"
+
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import useAxiosSecure from "../../Hooks/useaxiosSecure";
+
+
+
  
 const headers = ["Instrument", "Qty.", "Avg. cost", "LTP", "Cur. val", "P&L", "Net chg.", "Day chg."]
 
 const Holdings = () => {
+ const [holdings, setHoldings] = useState([])
+ const axiosSecure = useAxiosSecure()
+
+
+  useEffect(()=>{
+    axiosSecure.get("/AllHoldings").then((res)=>{
+       setHoldings(res.data)
+    })
+  },[])
+
+  const chartData = holdings.map((h) => ({
+    name : h.symbol,
+    value: h.curVal,
+    pnl: h.pnl,
+    daychange: h.dayChg,
+  }))
+
+
   return (
       <div className="p-6 overflow-x-auto">
       <h2 className="text-lg font-medium text-gray-700 mb-5">Holdings ({holdings.length})</h2>
@@ -51,6 +65,29 @@ const Holdings = () => {
           })}
         </tbody>
       </table>
+
+     
+     <div className="mt-8">
+  <h3 className="text-2xl font-medium text-gray-600 mb-4">Portfolio Overview</h3>
+
+  <ResponsiveContainer width="100%" height={300}>
+    <BarChart
+      data={chartData}
+      margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+    >
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+      <YAxis yAxisId="left"  orientation="left"  stroke="#8884d8" />
+      <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
+      <Tooltip />
+      <Legend />
+      <Bar yAxisId="left"  dataKey="value" fill="#8884d8" name="Current Value" />
+      <Bar yAxisId="right" dataKey="pnl"   fill="#82ca9d" name="P&L" />
+    </BarChart>
+  </ResponsiveContainer>
+</div>
+
+
     </div>
   )
 }

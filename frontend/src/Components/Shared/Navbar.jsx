@@ -1,20 +1,24 @@
 import { Link, NavLink } from "react-router";
+import useAuth from "../../Hooks/useAuth";
 const Logo = "/images/logo.svg";
 
 const Navbar = () => {
-  const user = false;
+
+    const { token : user } = useAuth()
+
 
   const navlink = (
     <>
-      <NavLink to="/singup">Sing Up</NavLink>
+    {
+         user ? <></> :     <NavLink to="/singup">Sing Up</NavLink>
+    }
       <NavLink to="/about">About</NavLink>
       <NavLink to="/product">Product</NavLink>
       <NavLink to="/pricing">Pricing</NavLink>
       <NavLink to="/support">Support</NavLink>
-      <NavLink to="/dashboard">Dashboard</NavLink>
       {user && (
         <>
-          <NavLink to="/dashboard">Send a Parcel</NavLink>
+        <NavLink to="/dashboard">Dashboard</NavLink>
         </>
       )}
     </>
